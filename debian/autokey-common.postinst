@@ -10,10 +10,16 @@ if [ -e /dev/uinput ]; then
 fi
 
 if [ "$USER" = "root" ] && [ "$(logname)" != "root" ]; then
-    #  Add the user to the "input" group
-    if [ -e /dev/uinput ]; then
-        usermod -a -G "input" "$(logname)"
-    fi
+    #  This fork doesn't add the user to the "input" group: on KDE Plasma it
+    #  isn't needed when autokey-kwin-bridge is installed, and the group can
+    #  read every keyboard and mouse. The message below says how to add it.
+    echo "*******************************************************************************"
+    echo "*  On KDE Plasma, install autokey-kwin-bridge and kwin-input (see the README) *"
+    echo "*  and AutoKey doesn't need the input group. On other Wayland desktops, add  *"
+    echo "*  your userid to the input group, then log off and back on:                 *"
+    echo "*                                                                             *"
+    echo "sudo usermod -a -G input $(logname)"
+    echo "*******************************************************************************"
     #  If Gnome is present, install the Gnome Shell extension
     gnome-extensions >/dev/null 2>&1
     if [ $? -ne 127 ]; then 

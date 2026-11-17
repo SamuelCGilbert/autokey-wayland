@@ -1,5 +1,5 @@
 Source: autokey
-Maintainer: David King <dave@daveking.com>
+Maintainer: Sam Gilbert <86975269+SamuelCGilbert@users.noreply.github.com>
 Section: utils
 Priority: optional
 Build-Depends: debhelper-compat (= 12),
@@ -16,14 +16,16 @@ Build-Depends: debhelper-compat (= 12),
                python3-xlib,
                python3-pyinotify
 Standards-Version: 4.5.0
-Vcs-Browser: https://github.com/dlk3/autokey-wayland
-Vcs-Git: https://github.com/dlk3/autokey-wayland.git
-Homepage: https://github.com/dlk3/autokey-wayland
+Vcs-Browser: https://github.com/SamuelCGilbert/autokey-wayland
+Vcs-Git: https://github.com/SamuelCGilbert/autokey-wayland.git
+Homepage: https://github.com/SamuelCGilbert/autokey-wayland
 
 Package: autokey-common
 Architecture: all
-Depends: imagemagick,
+Depends: gir1.2-glib-2.0,
+         imagemagick,
          python3-dbus,
+         python3-gi,
          python3-evdev,
          python3-pydbus,
          python3-pyinotify,
@@ -73,7 +75,7 @@ Depends: autokey-common (= ${binary:Version}),
          python3-pyqt5,
          python3-pyqt5.qsci,
          python3-pyqt5.qtsvg,
-         python3-qtpy
+         python3-qtpy,
          ${misc:Depends},
          ${python3:Depends}
 Description: desktop automation utility - Qt version

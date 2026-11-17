@@ -31,6 +31,33 @@ AI assistant (Claude). It's shared as-is, with no promise of support.
 
 ## Install
 
+### Packages
+
+Download the packages for your system from the
+[latest release](https://github.com/SamuelCGilbert/autokey-wayland/releases/latest)
+and install `autokey-common` plus `autokey-qt` (or `autokey-gtk` if you prefer
+the GTK version). They replace AutoKey if you already have it.
+
+- **Ubuntu 24.04 or newer, KDE neon, Kubuntu and Debian** (`.deb`):
+
+  ```bash
+  sudo apt install ./autokey-common_*_all.deb ./autokey-qt_*_all.deb
+  ```
+
+- **Fedora 43 or newer** (`.rpm`):
+
+  ```bash
+  sudo dnf install ./autokey-common-*.noarch.rpm ./autokey-qt-*.noarch.rpm
+  ```
+
+On KDE Plasma, also install
+[autokey-kwin-bridge](https://github.com/SamuelCGilbert/autokey-kwin-bridge#build)
+and [kwin-input](https://github.com/SamuelCGilbert/kwin-input#build-and-install),
+then log out and back in. On other Wayland desktops, add yourself to the
+`input` group as the installer tells you, then log out and back in.
+
+### Build from source
+
 Follow the official
 [install from GitHub](https://autokey-wayland.readthedocs.io/en/latest/github.html)
 guide, with two changes:

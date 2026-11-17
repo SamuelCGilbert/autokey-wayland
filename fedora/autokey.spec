@@ -1,13 +1,15 @@
 %{?python_enable_dependency_generator}
 Name:		autokey
-Version:	0.97.6
-Release:	0%{?dist}
+Epoch:		1
+Version:	0.97.6+wayland1
+Release:	1%{?dist}
 Summary:	Desktop automation utility
 
 
 License:	GPLv3
-URL:		https://github.com/dlk3/autokey-wayland
-Source0:	https://github.com/dlk3/autokey-wayland/archive/v%{version}.tar.gz
+URL:		https://github.com/SamuelCGilbert/autokey-wayland
+# A tarball of this source tree, made by .github/workflows/release.yml
+Source0:	autokey.tar.gz
 Source1:	10-autokey.rules
 Source2:	autokey-gnome-extension@autokey.shell-extension.zip
 
@@ -24,7 +26,8 @@ the full flexibility and power of the Python language.
 
 %package common
 Summary:	Desktop automation utility - common data
-Requires:	gnome-extensions-app
+Recommends:	gnome-extensions-app
+Requires:	python3-gobject-base
 Requires:	python3-dbus
 Requires:	python3-evdev
 Requires:	python3-pyudev
@@ -33,7 +36,7 @@ Requires:	ImageMagick
 Recommends:	wmctrl
 Recommends:	xautomation
 Recommends:	wl-clipboard
-Provides:	autokey = %{version}-%{release}
+Provides:	autokey = %{epoch}:%{version}-%{release}
 %description common
 This package contains the common data shared between the various front ends.
 
@@ -46,8 +49,13 @@ if [ -e /dev/uinput ]; then
 fi
 
 if [ "$USER" = "root" ] && [ "$(logname)" != "root" ]; then
-    #  Add the user to the "input" group membership
-    usermod -a -G "input" "$(logname)"
+    #  This fork doesn't add the user to the "input" group: on KDE Plasma it
+    #  isn't needed when autokey-kwin-bridge is installed, and the group can
+    #  read every keyboard and mouse
+    echo "On KDE Plasma, install autokey-kwin-bridge and kwin-input (see the README)"
+    echo "and AutoKey doesn't need the input group. On other Wayland desktops, add"
+    echo "your userid to the input group, then log off and back on:"
+    echo "sudo usermod -a -G input $(logname)"
     #  If Gnome is present, install the Gnome Shell extension
     gnome-extensions &>/dev/null
     if [ $? -ne 127 ]; then
@@ -74,8 +82,6 @@ fi
 case "$1" in
     0)
         if [ "$(logname)" != "root" ]; then
-            #  Remove the user from the "input" group membership
-            usermod -r -G "input" "$(logname)"
             #  If Gnome is present, remove the Gnome Shell extension
             gnome-extensions &>/dev/null
             if [ $? -ne 127 ]; then
@@ -99,8 +105,8 @@ Summary:	AutoKey GTK+ front end
 Requires:	gtksourceview3
 Requires:	libappindicator-gtk3
 Requires:	python3-gobject
-Requires:	autokey-common = %{version}-%{release}
-Provides:	autokey = %{version}-%{release}
+Requires:	autokey-common = %{epoch}:%{version}-%{release}
+Provides:	autokey = %{epoch}:%{version}-%{release}
 Requires:	zenity
 %description gtk
 This package contains the GTK+ front end for autokey
@@ -124,8 +130,8 @@ Summary:	AutoKey QT front end
 Requires:	python3-qscintilla-qt5
 Requires:	python3-qt5
 Requires:       python3-QtPy
-Requires:	autokey-common = %{version}-%{release}
-Provides:	autokey = %{version}-%{release}
+Requires:	autokey-common = %{epoch}:%{version}-%{release}
+Provides:	autokey = %{epoch}:%{version}-%{release}
 %description qt
 This package contains the QT front end for autokey
 
@@ -199,6 +205,11 @@ install -m 644 -D --target-dir=%{buildroot}%{_datadir}/autokey/gnome-shell-exten
 %{_mandir}/man1/autokey-qt.1*
 
 %changelog
+* Tue Nov 17 2026 Sam Gilbert <86975269+SamuelCGilbert@users.noreply.github.com> - 1:0.97.6+wayland1-1
+- Unofficial fork with KDE Plasma support through KWin (no root or uinput)
+- Abbreviations: left/right Shift and AltGr are printing modifiers
+- Don't add the user to the input group on install; print how instead
+
 * Tue Sep 1 2026 David King <dave@daveking.com> - 0.97.6-0
 - Bugfix release
 

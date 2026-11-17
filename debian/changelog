@@ -1,3 +1,11 @@
+autokey (1:0.97.6+wayland1) noble; urgency=medium
+
+  * Unofficial fork with KDE Plasma support through KWin (no root or uinput)
+  * Abbreviations: left/right Shift and AltGr are printing modifiers
+  * Don't add the user to the input group on install; print how instead
+
+ -- Sam Gilbert <86975269+SamuelCGilbert@users.noreply.github.com>  Tue, 17 Nov 2026 12:00:00 -0500
+
 autokey (0.97.6) noble; urgency=medium
 
   [Bug Fixes]

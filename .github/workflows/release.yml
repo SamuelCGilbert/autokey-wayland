@@ -1,0 +1,88 @@
+# Builds the packages of this unofficial fork.
+# Pushing a tag such as v0.97.6-wayland.1 builds them and publishes a release.
+# Running it by hand from the Actions tab only builds them.
+# The version in the packages comes from debian/changelog and fedora/autokey.spec.
+
+name: Release
+
+on:
+  push:
+    tags:
+      - '*-wayland*'
+  workflow_dispatch:
+
+jobs:
+  deb:
+    name: Build .deb (Ubuntu 24.04)
+    runs-on: ubuntu-24.04
+    container: ubuntu:24.04
+    steps:
+      - uses: actions/checkout@v6
+
+      - name: Build
+        run: |
+          export DEBIAN_FRONTEND=noninteractive DEB_BUILD_OPTIONS=nocheck
+          apt-get update -qq
+          apt-get install -y -qq --no-install-recommends build-essential devscripts equivs zip
+          mk-build-deps -i -r -t "apt-get -y -qq --no-install-recommends" debian/control
+          (cd autokey-gnome-extension/46 && zip -q "../autokey-gnome-extension@autokey.shell-extension.zip" *)
+          dpkg-buildpackage -b -us -uc
+          mkdir out
+          mv ../autokey-*.deb out/
+
+      - uses: actions/upload-artifact@v7
+        with:
+          name: deb
+          path: out/*.deb
+
+  rpm:
+    name: Build .rpm (Fedora 43)
+    runs-on: ubuntu-24.04
+    container: fedora:43
+    steps:
+      - name: Install build tools
+        run: dnf install -y rpm-build tar zip 'dnf-command(builddep)'
+
+      - uses: actions/checkout@v6
+        with:
+          path: autokey
+
+      - name: Build
+        run: |
+          dnf builddep -y autokey/fedora/autokey.spec
+          version=$(rpmspec -q --qf '%{version}\n' autokey/fedora/autokey.spec | head -1)
+          mkdir -p ~/rpmbuild/SOURCES out
+          (cd autokey/autokey-gnome-extension/46 && zip -q ~/rpmbuild/SOURCES/autokey-gnome-extension@autokey.shell-extension.zip *)
+          cp autokey/config/10-autokey.rules ~/rpmbuild/SOURCES/
+          tar -czf ~/rpmbuild/SOURCES/autokey.tar.gz --transform "s/^autokey/autokey-$version/" autokey
+          rpmbuild -bb autokey/fedora/autokey.spec
+          mv ~/rpmbuild/RPMS/noarch/autokey-*.rpm out/
+
+      - uses: actions/upload-artifact@v7
+        with:
+          name: rpm
+          path: out/*.rpm
+
+  release:
+    name: Publish release
+    if: github.ref_type == 'tag'
+    needs: [deb, rpm]
+    runs-on: ubuntu-24.04
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/download-artifact@v8
+        with:
+          merge-multiple: true
+
+      - name: Create the release and upload the packages
+        env:
+          GH_TOKEN: ${{ github.token }}
+          GH_REPO: ${{ github.repository }}
+          TAG: ${{ github.ref_name }}
+        run: |
+          sha256sum autokey* > SHA256SUMS
+          gh release view "$TAG" >/dev/null 2>&1 ||
+            gh release create "$TAG" --verify-tag --title "AutoKey for Wayland, with KDE Plasma support ${TAG#v}" \
+              --notes "Packages of this unofficial fork. Install autokey-common plus autokey-qt (or autokey-gtk). On KDE Plasma you also need autokey-kwin-bridge and kwin-input; see the README."
+          gh release upload "$TAG" autokey* SHA256SUMS --clobber
