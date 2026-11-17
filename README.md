@@ -52,8 +52,8 @@ the GTK version). They replace AutoKey if you already have it.
 
 On KDE Plasma, also install
 [autokey-kwin-bridge](https://github.com/SamuelCGilbert/autokey-kwin-bridge#build)
-and [kwin-input](https://github.com/SamuelCGilbert/kwin-input#build-and-install),
-then log out and back in. On other Wayland desktops, add yourself to the
+and [kwin-input](https://github.com/SamuelCGilbert/kwin-input#install) (it has
+packages too), then log out and back in. On other Wayland desktops, add yourself to the
 `input` group as the installer tells you, then log out and back in.
 
 ### Build from source
